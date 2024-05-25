@@ -14,7 +14,7 @@ class BLEDevice():
         self.isAuth = isAuth
     
     def printInfo(self, rssi):
-        print(f"Addr: {self.addr}\n Name: {self.name}\n RSSI: {rssi} dBm\n Dis: {rssi_to_distance(rssi)} m")
+        print(f"Addr: {self.addr}\nName: {self.name}\nRSSI: {rssi} dBm\nEstimated Dis: {rssi_to_distance(rssi)} m")
 
     def checkAuth(self, authDict):
         if self.addr in authDict:

@@ -4,9 +4,11 @@ from utils import *
 import json
 import argparse
 
-AUTH_LIST_PATH = './private/authDeviceList.json'
+AUTH_LIST_PATH = './private/authDeviceDict.json'
 
 def get_auth_BLE_device():
+    # 讀入 private/authDeviceDict.json -> dict
+    # 如果是空檔案就回傳 empty dict
     try:
         with open(AUTH_LIST_PATH, 'r') as f:
             d = json.load(fp = f)
@@ -15,6 +17,7 @@ def get_auth_BLE_device():
         return {}
 
 def update_auth_BLE_device(authDict):
+    # 寫入更新的 private/authDeviceDict.json
     json.dump(authDict, open(AUTH_LIST_PATH,'w'))
     print('authDeviceList UPDATED !!')
 
@@ -26,6 +29,7 @@ async def discover_devices():
     for device, data in devices.values():
         company = None
         temp = list(data.manufacturer_data.keys())
+        # manchenlee: 我這邊的manufacturer_data只會有一個key，所以這樣寫
         if len(temp) == 1:
             company = temp[0]
         new = BLEDevice(device.address, device.name, company)
