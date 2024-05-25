@@ -46,7 +46,7 @@ def add_auth_BLE_device(companyIdentifier):
             name = input('Please input Name of the BLE device: ')
             c_code = input('Please input Company Code of the BLE device: ')
             if not c_code.isnumeric():
-                print('Error: Company code should be an integer!!')
+                print('Warning: Company code should be an integer!! The value of company will be None.')
                 c_code = None
             else:
                 c_code = int(c_code)
@@ -109,9 +109,9 @@ def main():
                         print("===== Add failed !! =====")
             case 3:
                     if delete_auth_BLE_device():
-                        print('===== Delete successed !! =====')
+                        print('===== Remove successed !! =====')
                     else:
-                        print("===== Delete failed !!=====")
+                        print("===== Remove failed !!=====")
             case 4:
                     print('===== Good bye !! =====')
                     exit(0)
