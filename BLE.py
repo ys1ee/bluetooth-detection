@@ -46,7 +46,7 @@ def add_auth_BLE_device(companyIdentifier):
             name = input('Please input Name of the BLE device: ')
             c_code = input('Please input Company Code of the BLE device: ')
             if not c_code.isnumeric():
-                print('Company code should be an integer!!')
+                print('Error: Company code should be an integer!!')
                 c_code = None
             else:
                 c_code = int(c_code)
@@ -71,7 +71,7 @@ def delete_auth_BLE_device():
         return 1
         #break
     except:
-        print('This MAC address is not in authDeviceDict !!')
+        print('Error: This MAC address is not in authDeviceDict !!')
         return 0
         #continue
 
@@ -84,7 +84,7 @@ def main():
         companyIdentifier[i] = f[i]['name']
 
     while True:
-        print('=== Welcome to BLE tracker !! ===')
+        print('===== Welcome to BLE tracker !! =====')
         print('1. Start scanning')
         print('2. Add authenticated BLE device')
         print('3. Remove unauthenticated BLE device')
@@ -93,7 +93,7 @@ def main():
             try:
                 choice = int(input('Your choice: '))
                 if choice > 4 or choice < 1:
-                    raise ValueError('Please input an integer which ranges from 1 to 4 !!')
+                    raise ValueError('Error: Please input an integer which ranges from 1 to 4 !!')
                 break
             except ValueError as msg:
                 print(msg)
@@ -104,16 +104,16 @@ def main():
                     loop.run_until_complete(discover_devices(companyIdentifier))
             case 2:
                     if add_auth_BLE_device(companyIdentifier):
-                        print('Add successed !!')
+                        print('===== Add successed !! =====')
                     else:
-                        print("Add failed !!")
+                        print("===== Add failed !! =====")
             case 3:
                     if delete_auth_BLE_device():
-                        print('Delete successed !!')
+                        print('===== Delete successed !! =====')
                     else:
-                        print("Delete failed !!")
+                        print("===== Delete failed !!=====")
             case 4:
-                    print('Good bye !!')
+                    print('===== Good bye !! =====')
                     exit(0)
     
 
