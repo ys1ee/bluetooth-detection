@@ -1,11 +1,20 @@
-
-
-
 def rssi_to_distance(rssi, A=-59, n=2):
-        if rssi == 0:
-            return -1.0  # if we cannot determine distance, return -1.
-        distance = 10 ** ((A - rssi) / (10 * n))
-        return distance
+    """
+    Calculate the distance based on the received signal strength indicator (RSSI) value.
+
+    Parameters:
+        rssi (int): The received signal strength indicator value.
+        A (float, optional): The reference signal strength value. Defaults to -59.
+        n (float, optional): The exponent value. Defaults to 2.
+
+    Returns:
+        float: The calculated distance in meters. If the RSSI value is 0, returns -1.0.
+    """
+
+    if rssi == 0:
+        return -1.0  # if we cannot determine distance, return -1.
+    distance = 10 ** ((A - rssi) / (10 * n))
+    return distance
 
 class BLEDevice():
     def __init__(self, addr, name="", company=0, isAuth=None):
@@ -13,7 +22,9 @@ class BLEDevice():
         self.name = name
         self.company = company
         self.isAuth = isAuth
-    
+        self.dis = 0
+        self.sus = 0
+
     def printInfo(self, rssi=None):
         print(f"Addr: {self.addr}\nName: {self.name}\nCompany: {self.company}")
         if rssi:
@@ -33,7 +44,7 @@ class BLEDevice():
                         raise ValueError('Error: Please input 0(False) or 1(True)!!')
                     elif t.isnumeric() and (int(t) != 0 and int(t) != 1):
                         raise ValueError('Error: Please input 0(False) or 1(True)!!')
-                    else: 
+                    else:
                         break
                 except ValueError as msg:
                     print(msg)
@@ -43,4 +54,3 @@ class BLEDevice():
             if isAuth:
                 authDict[self.addr] = {"Name": self.name, "Company": self.company}
             return authDict
-            

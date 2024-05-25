@@ -4,12 +4,18 @@ from utils import *
 import json
 import yaml
 
-COMPANY_IDENTIFIER = 'constants/company_identifiers.yaml'
+COMPANY_IDENTIFIER = './constants/company_identifiers.yaml'
 AUTH_LIST_PATH = './private/authDeviceDict.json'
 
-def get_auth_BLE_device():
-    # 讀入 private/authDeviceDict.json -> dict
-    # 如果是空檔案就回傳 empty dict
+def get_auth_BLE_device() -> dict:
+    """
+    Reads the private/authDeviceDict.json file and returns its contents as a dictionary.
+
+    Returns:
+        dict: The contents of the private/authDeviceDict.json file as a dictionary.
+        If the file does not exist, an empty dictionary is returned.
+    """
+
     try:
         with open(AUTH_LIST_PATH, 'r') as f:
             d = json.load(fp = f)
@@ -18,11 +24,30 @@ def get_auth_BLE_device():
         return {}
 
 def update_auth_BLE_device(authDict):
-    # 寫入更新的 private/authDeviceDict.json
+    """
+    Updates the authentication device dictionary and writes it to the private/authDeviceDict.json file.
+
+    Parameters:
+        authDict (dict): The authentication device dictionary to be updated.
+
+    Returns:
+        None
+    """
+
     json.dump(authDict, open(AUTH_LIST_PATH,'w'))
     print('authDeviceDict UPDATED !!')
 
 async def discover_devices(companyIdentifier):
+    """
+    Discovers nearby Bluetooth devices and updates the authentication device dictionary.
+
+    Args:
+        companyIdentifier (dict): A dictionary mapping company codes to company names.
+
+    Returns:
+        None
+    """
+
     authDict = get_auth_BLE_device()
     print("Scanning for nearby Bluetooth devices...")
     devices = await BleakScanner.discover(return_adv=True)
@@ -31,9 +56,10 @@ async def discover_devices(companyIdentifier):
         c_code = None
         temp = list(data.manufacturer_data.keys())
         # manchenlee: 我這邊的manufacturer_data只會有一個key，所以這樣寫
+
         if len(temp) == 1:
             c_code = temp[0]
-        new = BLEDevice(device.address, device.name, 
+        new = BLEDevice(device.address, device.name,
                         company = companyIdentifier[c_code] if c_code else c_code)
         new.printInfo(data.rssi)
         authDict = new.checkAuth(authDict)
@@ -42,25 +68,25 @@ async def discover_devices(companyIdentifier):
 def add_auth_BLE_device(companyIdentifier):
     authDict = get_auth_BLE_device()
     try:
-            addr = input('Please input MAC address of the BLE device: ')
-            name = input('Please input Name of the BLE device: ')
-            c_code = input('Please input Company Code of the BLE device: ')
-            if not c_code.isnumeric():
-                print('Warning: Company code should be an integer!! The value of company will be None.')
-                c_code = None
-            else:
-                c_code = int(c_code)
-            #print(type(c_code))
-            #print(companyIdentifier)
-            new = BLEDevice(addr, name, 
-                        company = companyIdentifier[c_code] if c_code else c_code)
-            new.printInfo()
-            authDict[new.addr] = {"Name": new.name, "Company": new.company}
-            update_auth_BLE_device(authDict)
-            return 1
+        addr = input('Please input MAC address of the BLE device: ')
+        name = input('Please input Name of the BLE device: ')
+        c_code = input('Please input Company Code of the BLE device: ')
+        if not c_code.isnumeric():
+            print('Warning: Company code should be an integer!! The value of company will be None.')
+            c_code = None
+        else:
+            c_code = int(c_code)
+        #print(type(c_code))
+        #print(companyIdentifier)
+        new = BLEDevice(addr, name,
+                    company = companyIdentifier[c_code] if c_code else c_code)
+        new.printInfo()
+        authDict[new.addr] = {"Name": new.name, "Company": new.company}
+        update_auth_BLE_device(authDict)
+        return 1
     except:
-            #print(msg)
-            return 0
+        #print(msg)
+        return 0
 
 def delete_auth_BLE_device():
     authDict = get_auth_BLE_device()
@@ -115,8 +141,7 @@ def main():
             case 4:
                     print('===== Good bye !! =====')
                     exit(0)
-    
+
 
 if __name__ == "__main__":
     main()
-    
