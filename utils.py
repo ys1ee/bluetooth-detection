@@ -1,5 +1,6 @@
 
 
+
 def rssi_to_distance(rssi, A=-59, n=2):
         if rssi == 0:
             return -1.0  # if we cannot determine distance, return -1.
@@ -13,12 +14,14 @@ class BLEDevice():
         self.company = company
         self.isAuth = isAuth
     
-    def printInfo(self, rssi):
-        print(f"Addr: {self.addr}\nName: {self.name}\nRSSI: {rssi} dBm\nEstimated Dis: {rssi_to_distance(rssi)} m")
+    def printInfo(self, rssi=None):
+        print(f"Addr: {self.addr}\nName: {self.name}\nCompany: {self.company}")
+        if rssi:
+            print(f"RSSI: {rssi} dBm\nEstimated Dis: {rssi_to_distance(rssi)} m")
 
     def checkAuth(self, authDict):
         if self.addr in authDict:
-            print("The BLE device \"{}\" has been in authDeviceList!!".format(self.addr))
+            print("The BLE device \"{}\" has been in authDeviceDict!!".format(self.addr))
             self.isAuth = 1
             return authDict
         else:
