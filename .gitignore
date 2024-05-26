@@ -1,3 +1,2 @@
 __pycache__/
-/private/authDeviceDict.json
-!private/
+private/authDeviceDict.json
