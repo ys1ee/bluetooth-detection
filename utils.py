@@ -17,12 +17,12 @@ def rssi_to_distance(rssi, A=-59, n=2):
     return distance
 
 class BLEDevice():
-    def __init__(self, addr, name="", company=0, isAuth=None):
+    def __init__(self, addr, name="", company=0, dis=0):
         self.addr = addr
         self.name = name
         self.company = company
-        self.isAuth = isAuth
-        self.dis = 0
+        # self.isAuth = 0
+        self.dis = dis
         self.sus = 0
 
     def printInfo(self, rssi=None):
@@ -30,10 +30,26 @@ class BLEDevice():
         if rssi:
             print(f"RSSI: {rssi} dBm\nEstimated Dis: {rssi_to_distance(rssi)} m")
 
-    def checkAuth(self, authDict):
+    def addFind(self, findDict, rssi) -> dict:
+        new_dis = rssi_to_distance(rssi)
+        if self.addr in findDict:
+            new_dis = rssi_to_distance(rssi)
+            ratio = (new_dis-self.dis)/self.dis*100
+            if -10 <= ratio <= 10:
+                findDict[self.addr]["Sus"] += 1
+            else:
+                findDict[self.addr]["Sus"] -= int(ratio)
+    
+            findDict[self.addr]["Dis"] = new_dis
+        if self.addr not in findDict and new_dis <= 10:
+            findDict[self.addr] = {"Name": self.name, "Company": self.company, "Dis": self.dis, "Sus": 0}
+        
+        return findDict
+
+
+    def checkAuth(self, authDict) -> bool:
+        return self.addr in authDict
         if self.addr in authDict:
-            print("The BLE device \"{}\" has been in authDeviceDict!!".format(self.addr))
-            self.isAuth = 1
             return authDict
         else:
             while True:
