@@ -5,14 +5,14 @@ import json
 import yaml
 
 COMPANY_IDENTIFIER = './constants/company_identifiers.yaml'
-AUTH_LIST_PATH = './private/authDeviceDict.json'
+AUTH_LIST_PATH = './private/AuthDeviceDict.json'
 
 def get_auth_BLE_device() -> dict:
     """
-    Reads the private/authDeviceDict.json file and returns its contents as a dictionary.
+    Reads the private/AuthDeviceDict.json file and returns its contents as a dictionary.
 
     Returns:
-        dict: The contents of the private/authDeviceDict.json file as a dictionary.
+        dict: The contents of the private/AuthDeviceDict.json file as a dictionary.
         If the file does not exist, an empty dictionary is returned.
     """
 
@@ -35,7 +35,7 @@ def update_auth_BLE_device(authDict):
     """
 
     json.dump(authDict, open(AUTH_LIST_PATH,'w'))
-    print('authDeviceDict UPDATED !!')
+    print('AuthDeviceDict UPDATED !!')
 
 async def discover_devices(companyIdentifier):
     """
@@ -97,7 +97,7 @@ def delete_auth_BLE_device():
         return 1
         #break
     except:
-        print('Error: This MAC address is not in authDeviceDict !!')
+        print('Error: This MAC address is not in AuthDeviceDict !!')
         return 0
         #continue
 
