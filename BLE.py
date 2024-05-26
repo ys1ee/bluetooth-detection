@@ -53,6 +53,7 @@ async def discover_devices(companyIdentifier):
     devices = await BleakScanner.discover(return_adv=True)
     print(f"Found {len(devices)} devices")
     for device, data in devices.values():
+        #print(data.manufacturer_data.keys())
         c_code = None
         temp = list(data.manufacturer_data.keys())
         # manchenlee: 我這邊的manufacturer_data只會有一個key，所以這樣寫
@@ -107,7 +108,8 @@ def main():
     f = f['company_identifiers']
     companyIdentifier = {}
     for i in range(len(f)):
-        companyIdentifier[i] = f[i]['name']
+        companyIdentifier[i] = f[len(f) - 1 - i]['name']
+        #print(i, f[len(f) - 1 - i]['name'])
 
     while True:
         print('===== Welcome to BLE tracker !! =====')
