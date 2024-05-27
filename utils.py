@@ -39,34 +39,13 @@ class BLEDevice():
                 findDict[self.addr]["Sus"] += 1
             else:
                 findDict[self.addr]["Sus"] -= int(ratio)
-    
+
             findDict[self.addr]["Dis"] = new_dis
         if self.addr not in findDict and new_dis <= 10:
             findDict[self.addr] = {"Name": self.name, "Company": self.company, "Dis": self.dis, "Sus": 0}
-        
+
         return findDict
 
 
     def checkAuth(self, authDict) -> bool:
         return self.addr in authDict
-        if self.addr in authDict:
-            return authDict
-        else:
-            while True:
-                try:
-                    t = input('Is the BLE device \"{}\" authenticated? (0/1)'.format(self.addr))
-                    if len(t) != 1 or not t.isnumeric():
-                        #print(t)
-                        raise ValueError('Error: Please input 0(False) or 1(True)!!')
-                    elif t.isnumeric() and (int(t) != 0 and int(t) != 1):
-                        raise ValueError('Error: Please input 0(False) or 1(True)!!')
-                    else:
-                        break
-                except ValueError as msg:
-                    print(msg)
-                    continue
-            isAuth = int(t)
-            self.isAuth = isAuth
-            if isAuth:
-                authDict[self.addr] = {"Name": self.name, "Company": self.company}
-            return authDict

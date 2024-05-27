@@ -13,7 +13,17 @@ FIND_LIST_PATH = './private/FindDeviceDict.json'
 class TimeoutException(Exception):
     pass
 
-def input_with_timeout(timeout=3):
+def input_with_timeout(timeout=5):
+    """
+    Raises a `TimeoutException` after a specified timeout period if no user input is received.
+
+    Args:
+        timeout (int): The number of seconds to wait for user input. Defaults to 5.
+
+    Returns:
+        str: The user input if it is received before the timeout period. If overtime, returns 0.
+    """
+
     def timeout_handler(signum, frame):
         raise TimeoutException("")
 
@@ -25,8 +35,8 @@ def input_with_timeout(timeout=3):
         signal.alarm(0)  # relieve timeout
         return user_input
     except TimeoutException as e:
-        return 0
-    
+        return "0"
+
 def get_auth_BLE_device() -> dict:
     """
     Reads the private/AuthDeviceDict.json file and returns its contents as a dictionary.
@@ -63,7 +73,7 @@ def update_auth_BLE_device(authDict):
     """
     Updates the authentication device dictionary and writes it to the private/authDeviceDict.json file.
 
-    Parameters:
+    Args:
         authDict (dict): The authentication device dictionary to be updated.
 
     Returns:
@@ -77,7 +87,7 @@ def update_find_BLE_device(findDict):
     """
     Updates the found device dictionary and writes it to the private/findDeviceDict.json file.
 
-    Parameters:
+    Args:
         findDict (dict): The found device dictionary to be updated.
 
     Returns:
@@ -85,22 +95,20 @@ def update_find_BLE_device(findDict):
     """
 
     json.dump(findDict, open(FIND_LIST_PATH,'w'))
-    print('FindDeviceDict UPDATED !!')
+    print('FindDeviceDict UPDATED !!\n')
 
 async def discover_devices(companyIdentifier):
     """
-    Discovers nearby Bluetooth devices and updates the authentication device dictionary.
+    Discovers nearby BLE devices and updates the authentication device dictionary.
 
     Args:
         companyIdentifier (dict): A dictionary mapping company codes to company names.
-
-    Returns:
-        None
     """
 
+    suspect = 0
     authDict = get_auth_BLE_device()
     findDict = get_find_BLE_device()
-    print("Scanning for nearby Bluetooth devices...")
+    print("Scanning for nearby BLE devices...")
     devices = await BleakScanner.discover(return_adv=True)
     print(f"Found {len(devices)} devices")
     for device, data in devices.values():
@@ -110,19 +118,40 @@ async def discover_devices(companyIdentifier):
 
         if len(temp) == 1:
             c_code = temp[0]
+
+        company = None
+        try:
+            company = companyIdentifier[c_code] if c_code else c_code
+        except:
+            pass
+
         new = BLEDevice(device.address, device.name,
-                        company = companyIdentifier[c_code] if c_code else c_code,
+                        company = company,
                         dis = rssi_to_distance(data.rssi))
 
         if not new.checkAuth(authDict):
             new.addFind(findDict, data.rssi)
         if new.addr in findDict and findDict[new.addr]["Sus"] >= 5:
-            print(f"Device {device.address} is suspicious. It has been found {findDict[device.address]['Sus']} times.!!")
+            print(f"Device {device.address} is suspicious. It has been found {findDict[device.address]['Sus']} times!!")
             new.printInfo(data.rssi)
+            suspect += 1
 
-    update_find_BLE_device(findDict)
+    if suspect > 0:
+        print(f"Found {suspect} suspicious devices. Please check it out!!\n")
+    else:
+        update_find_BLE_device(findDict)
 
 def add_auth_BLE_device(companyIdentifier):
+    """
+    Adds an authenticated BLE device to the authentication device dictionary.
+
+    Args:
+        companyIdentifier (dict): A dictionary mapping company codes to company names.
+
+    Returns:
+        None
+    """
+
     authDict = get_auth_BLE_device()
     try:
         addr = input('Please input MAC address of the BLE device: ')
@@ -139,24 +168,35 @@ def add_auth_BLE_device(companyIdentifier):
                     company = companyIdentifier[c_code] if c_code else c_code)
         new.printInfo()
         authDict[new.addr] = {"Name": new.name, "Company": new.company}
+        print("Add successed: ", end="")
         update_auth_BLE_device(authDict)
-        return 1
     except:
-        #print(msg)
-        return 0
+        print("Add failed !! \n")
 
 def delete_auth_BLE_device():
+    """
+    Deletes an authenticated BLE device from the authentication device dictionary if exists.
+    """
+
     authDict = get_auth_BLE_device()
     try:
         addr = input('Please input MAC address of the BLE device: ')
         authDict.pop(addr)
         update_auth_BLE_device(authDict)
-        return 1
-        #break
+        print('Remove successed !!\n')
     except:
-        print('Error: This MAC address is not in AuthDeviceDict !!')
-        return 0
-        #continue
+        print('Remove failed: This MAC address is not in AuthDeviceDict !!\n')
+
+
+def print_find_BLE_device():
+    """
+    Prints the list of found BLE devices with their names, companies, and addresses.
+    """
+    findDict = get_find_BLE_device()
+    print('\n===== Find Device List =====')
+    for addr in findDict:
+        print(f"Name: {findDict[addr]['Name']}, Company: {findDict[addr]['Company']}, Addr: {addr}")
+    print()
 
 def main():
     with open(COMPANY_IDENTIFIER, 'r', encoding="utf-8") as stream:
@@ -173,7 +213,7 @@ def main():
     print('1. Add authenticated BLE device')
     print('2. Remove unauthenticated BLE device')
     print('3. List all find BLE devices')
-    print('4. Exit')
+    print('4. Exit\n')
     while True:
         try:
             choice = int(input_with_timeout())
@@ -182,23 +222,19 @@ def main():
 
         match choice:
             case 1:
-                if add_auth_BLE_device(companyIdentifier):
-                    print('===== Add successed !! =====')
-                else:
-                    print("===== Add failed !! =====")
+                add_auth_BLE_device(companyIdentifier)
             case 2:
-                if delete_auth_BLE_device():
-                    print('===== Remove successed !! =====')
-                else:
-                    print("===== Remove failed !!=====")
+                delete_auth_BLE_device()
             case 3:
+                print_find_BLE_device()
+            case 4:
                 print('===== Good bye !! =====')
                 exit(0)
 
         loop = asyncio.get_event_loop()
         loop.run_until_complete(discover_devices(companyIdentifier))
 
-        sleep(25)
+        sleep(0)
 
 
 if __name__ == "__main__":
