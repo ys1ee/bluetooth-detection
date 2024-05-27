@@ -1,1 +1,2 @@
-# bluetooth-detection
+# BLE-detection
+## And tracking suspect devices
