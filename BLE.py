@@ -31,7 +31,7 @@ def input_with_timeout(timeout=5):
     signal.alarm(timeout)
 
     try:
-        user_input = input("Input if you want to do other operation\n")
+        user_input = input("\nInput if you want to do other operation\n")
         signal.alarm(0)  # relieve timeout
         return user_input
     except TimeoutException as e:
@@ -95,7 +95,6 @@ def update_find_BLE_device(findDict):
     """
 
     json.dump(findDict, open(FIND_LIST_PATH,'w'))
-    print('FindDeviceDict UPDATED !!\n')
 
 async def discover_devices(companyIdentifier):
     """
@@ -130,16 +129,15 @@ async def discover_devices(companyIdentifier):
                         dis = rssi_to_distance(data.rssi))
 
         if not new.checkAuth(authDict):
-            new.addFind(findDict, data.rssi)
+            findDict = new.addFind(findDict, data.rssi)
         if new.addr in findDict and findDict[new.addr]["Sus"] >= 5:
-            print(f"Device {device.address} is suspicious. It has been found {findDict[device.address]['Sus']} times!!")
+            print(f"Device {new.addr} is suspicious. It has been found {findDict[new.addr]['Sus']} times!!")
             new.printInfo(data.rssi)
             suspect += 1
 
     if suspect > 0:
         print(f"Found {suspect} suspicious devices. Please check it out!!\n")
-    else:
-        update_find_BLE_device(findDict)
+    update_find_BLE_device(findDict)
 
 def add_auth_BLE_device(companyIdentifier):
     """
@@ -193,7 +191,7 @@ def print_find_BLE_device():
     Prints the list of found BLE devices with their names, companies, and addresses.
     """
     findDict = get_find_BLE_device()
-    print('\n===== Find Device List =====')
+    print('\n===== Found Device List =====')
     for addr in findDict:
         print(f"Name: {findDict[addr]['Name']}, Company: {findDict[addr]['Company']}, Addr: {addr}")
     print()
@@ -234,7 +232,7 @@ def main():
         loop = asyncio.get_event_loop()
         loop.run_until_complete(discover_devices(companyIdentifier))
 
-        sleep(0)
+        sleep(25)
 
 
 if __name__ == "__main__":
