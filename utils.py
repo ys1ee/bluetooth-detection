@@ -23,7 +23,7 @@ class BLEDevice():
         self.company = company
         # self.isAuth = 0
         self.dis = dis
-        self.sus = 0
+        self.sus = 1
 
     def printInfo(self, rssi=None):
         print(f"Addr: {self.addr}\nName: {self.name}\nCompany: {self.company}")
@@ -35,14 +35,19 @@ class BLEDevice():
         if self.addr in findDict:
             new_dis = rssi_to_distance(rssi)
             ratio = (new_dis-self.dis)/self.dis*100
-            if -10 <= ratio <= 10:
+            if new_dis > 10:
+                findDict[self.addr]["Sus"] = 0
+                findDict[self.addr]["Dis"] = 0
+
+            if new_dis <= 5 or -10 <= ratio <= 10:
                 findDict[self.addr]["Sus"] += 1
             else:
-                findDict[self.addr]["Sus"] -= int(ratio)
+                findDict[self.addr]["Sus"] -= 1
 
             findDict[self.addr]["Dis"] = new_dis
+
         if self.addr not in findDict and new_dis <= 10:
-            findDict[self.addr] = {"Name": self.name, "Company": self.company, "Dis": self.dis, "Sus": 0}
+            findDict[self.addr] = {"Name": self.name, "Company": self.company, "Dis": self.dis, "Sus": 1}
 
         return findDict
 
