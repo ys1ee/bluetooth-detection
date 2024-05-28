@@ -206,6 +206,8 @@ def main():
         #print(i, f[len(f) - 1 - i]['name'])
 
 
+    json.dump({}, open(FIND_LIST_PATH,'w'))
+
     print('===== Welcome to BLE tracker !! =====')
     print('The scan will start automatically')
     print('1. Add authenticated BLE device')
