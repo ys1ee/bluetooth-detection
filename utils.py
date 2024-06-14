@@ -46,7 +46,7 @@ class BLEDevice():
 
             findDict[self.addr]["Dis"] = new_dis
 
-        if self.addr not in findDict and new_dis <= 10:
+        if self.addr not in findDict and new_dis <= 5:
             findDict[self.addr] = {"Name": self.name, "Company": self.company, "Dis": self.dis, "Sus": 1}
 
         return findDict
